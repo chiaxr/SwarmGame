@@ -1,0 +1,16 @@
+{
+    "common":
+    {
+        "messageTimeoutMs": 1000,
+        "scenarioConfigFile": "scenario.json"
+    },
+    "vis":
+    {
+        "screenWidth": 1280,
+        "screenHeight": 720
+    },
+    "sim":
+    {
+        
+    }
+}
