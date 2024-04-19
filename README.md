@@ -18,7 +18,7 @@ Currently only working on Windows 10
 ```
 git clone https://github.com/chiaxr/SwarmGame.git
 ```
-* Download [libraries](https://drive.google.com/file/d/1r9HfjNzL4D28UYtx_wCTpORdUzKmw4uY/view) and unzip in cloned folder
+* Download [libraries](https://drive.google.com/drive/folders/1XxWejEG9aGHbXzyk8PBnEdZnPmLPKYYv?usp=sharing) and unzip in cloned folder
 * Generate solution
 ```
 cd SwarmGame
