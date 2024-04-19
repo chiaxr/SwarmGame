@@ -9,7 +9,8 @@ namespace vis
 enum class RenderableType
 {
     UNKNOWN,
-    UAV
+    UAV,
+    OBSTACLE
 };
 
 struct Renderable
@@ -20,10 +21,15 @@ struct Renderable
     RenderableType mRenderType { RenderableType::UNKNOWN };
     virtual void render() const = 0;
 
-    Vector3 toVisFrame(float x, float y, float z)
+    Vector3 toVisFrame(const float x, const float y, const float z) const
     {
         return {x, z, -y};
     }
-};  
+
+    Vector3 toVisFrame(const Vector3& v) const
+    {
+        return {v.x, v.z, -v.y};
+    }
+};
 }
 }

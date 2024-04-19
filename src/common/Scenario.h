@@ -1,8 +1,8 @@
 #pragma once
 
-#include "common/Uav.h"
-
 #include "common/JsonWrapper.h"
+#include "common/Obstacle.h"
+#include "common/Uav.h"
 
 namespace swarmgame
 {
@@ -22,9 +22,18 @@ struct Scenario
                 mInitialUavs.emplace_back(std::move(temp));
             }
         }
+
+        if (scenario.contains("obstacles"))
+        {
+            for (const nlohmann::json& obstacle : scenario.at("obstacles"))
+            {
+                mObstacles.emplace_back(obstacle);
+            }
+        }
     }
 
     std::vector<Uav> mInitialUavs;
+    std::vector<Obstacle> mObstacles;
 };  
 }
 }

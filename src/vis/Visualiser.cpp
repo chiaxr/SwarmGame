@@ -84,7 +84,16 @@ void Visualiser::run()
 
 void Visualiser::render()
 {
+    renderEnvironment();
     renderModelRenderables();
+}
+
+void Visualiser::renderEnvironment()
+{
+    for (const auto& obstacle : mObstacles)
+    {
+        obstacle.render();
+    }
 }
 
 void Visualiser::renderModelRenderables()

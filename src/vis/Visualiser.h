@@ -22,13 +22,14 @@ class Visualiser : public common::Module
 {
 public:
     Visualiser(const VisualisationParams& params, const common::Scenario& scenario, zmq::context_t* ctx)
-        : common::Module(ctx), mParams(params)
+        : common::Module(ctx), mObstacles(scenario.mObstacles), mParams(params)
     {}
 
     void init() override;
 
 private:
     void render();
+    void renderEnvironment();
     void renderModelRenderables();
 
     void handleInput();
@@ -41,6 +42,8 @@ private:
 
     CameraController mCameraController;
     VisualisationParams mParams;
+
+    std::vector<common::Obstacle> mObstacles;
 
     std::mutex mModelRenderablesMutex;
     std::vector<std::shared_ptr<Renderable>> mModelRenderables;

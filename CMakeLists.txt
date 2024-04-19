@@ -10,8 +10,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DZMQ_STATIC")
 set(PROJECT_LIB_DIR ${PROJECT_SOURCE_DIR}/lib)
 # cppack
 set(CPPACK_LIB_DIR ${PROJECT_LIB_DIR}/cppack)
+# earcut.hpp
+set(EARCUT_LIB_DIR ${PROJECT_LIB_DIR}/earcut.hpp-2.2.4)
 # json
 set(JSON_LIB_DIR ${PROJECT_LIB_DIR}/json-3.11.3)
+# polylabel
+set(POLYLABEL_LIB_DIR ${PROJECT_LIB_DIR}/polylabel-1.1.0)
 # raylib
 add_subdirectory(${PROJECT_LIB_DIR}/raylib-5.0)
 # raygui
@@ -45,7 +49,9 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/src
+    ${EARCUT_LIB_DIR}/include
     ${JSON_LIB_DIR}/single_include
+    ${POLYLABEL_LIB_DIR}/include
     ${RAYGUI_LIB_DIR}/src
     ${ZeroMQ_INCLUDE_DIRS}
     ${CPPZMQ_LIB_DIR}
@@ -53,7 +59,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_sources(${PROJECT_NAME} PRIVATE
     src/common/FileUtils.cpp
+    src/common/Geometry.cpp
     src/common/Module.cpp
+    src/common/Obstacle.cpp
     src/common/Uav.cpp
     src/sim/Model.cpp
     src/vis/CameraController.cpp
