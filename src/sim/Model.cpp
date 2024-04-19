@@ -79,22 +79,33 @@ void Model::runPublisher()
 {
     zmq::socket_t publisher(*mCtx, zmq::socket_type::pub);
     publisher.bind("tcp://localhost:5555");
+    publisher.connect("inproc://" + topic::Renderables);
 
     // Give the subscribers a chance to connect, so they don't lose any messages
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
     while (mRunning)
     {
+
+        std::map<vis::RenderableType, std::vector<nlohmann::json>> renderablesSerialised;
+
+        // Send UAV states to controllers
         {
             std::lock_guard<std::mutex> guard(mUavsMutex);
             for (const auto& [id, uav] : mUavs)
             {
                 publisher.send(zmq::buffer(topic::UavState), zmq::send_flags::sndmore);
                 publisher.send(zmq::buffer(uav.toJson().dump()));
+
+                renderablesSerialised[vis::RenderableType::UAV].emplace_back(uav);
             }
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(20)); // must be faster than visualiser target FPS
+        // Send to visualiser for rendering
+        publisher.send(zmq::buffer(topic::Renderables), zmq::send_flags::sndmore);
+        publisher.send(zmq::buffer(nlohmann::json(renderablesSerialised).dump()));
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(20)); // should be faster than visualiser target FPS
     }
 }
 

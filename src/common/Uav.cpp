@@ -18,8 +18,13 @@ Uav::Uav(const int32_t id,
     mVx(vx), mVy(vy), mVz(vz)
 {}
 
-Uav::Uav(const nlohmann::json& json)
-    : vis::Renderable(vis::RenderableType::UAV)
+void Uav::render() const
+{
+    constexpr float radius = 0.5f;
+    DrawSphere(toVisFrame(mX, mY, mZ), radius, RED);
+}
+
+void Uav::fromJson(const nlohmann::json& json)
 {
     mId = static_cast<int32_t>(json.at("id"));
     mX = static_cast<float>(json.at("x"));
@@ -41,12 +46,6 @@ nlohmann::json Uav::toJson() const
     json.emplace("vy", mVy);
     json.emplace("vz", mVz);
     return json;
-}
-
-void Uav::render()
-{
-    constexpr float radius = 0.5f;
-    DrawSphere(toVisFrame(mX, mY, mZ), radius, RED);
 }
 }
 }

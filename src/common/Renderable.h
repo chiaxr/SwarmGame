@@ -8,9 +8,8 @@ namespace vis
 {
 enum class RenderableType
 {
-    UAV,
-    OBSTACLE,
-    UNKNOWN
+    UNKNOWN,
+    UAV
 };
 
 struct Renderable
@@ -19,7 +18,7 @@ struct Renderable
     {}
 
     RenderableType mRenderType { RenderableType::UNKNOWN };
-    virtual void render() = 0;
+    virtual void render() const = 0;
 
     Vector3 toVisFrame(float x, float y, float z)
     {

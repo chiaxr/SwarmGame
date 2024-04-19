@@ -1,10 +1,10 @@
 #include "common/FileUtils.h"
+#include "common/JsonWrapper.h"
 #include "common/Scenario.h"
 #include "sim/Model.h"
 #include "vis/VisualisationParams.h"
 #include "vis/Visualiser.h"
 
-#include "nlohmann/json.hpp"
 #include "zmq.hpp"
 #include "zmq_addon.hpp"
 
@@ -24,14 +24,14 @@ int main(void)
     nlohmann::json scenarioJson = util::parseJsonFile("config/" + scenarioFile);
     common::Scenario scenario(scenarioJson);
 
-    nlohmann::json simParamsJson = util::mergeJson(paramsJson.at("common"), scenarioJson);
+    nlohmann::json simParamsJson = util::mergeJson(paramsJson.at("common"), paramsJson.at("sim"));
     sim::SimulationParams simParams(simParamsJson);
     sim::Model model(simParams, scenario, &ctx);
     model.init();
 
     nlohmann::json visParamsJson = util::mergeJson(paramsJson.at("common"), paramsJson.at("vis"));
     vis::VisualisationParams visParams(visParamsJson);
-    vis::Visualiser visualiser(visParams, &ctx);
+    vis::Visualiser visualiser(visParams, scenario, &ctx);
     visualiser.init();
 
     bool running = true;

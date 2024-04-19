@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "nlohmann/json.hpp"
+#include "common/JsonWrapper.h"
 
 namespace swarmgame
 {

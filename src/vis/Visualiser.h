@@ -1,8 +1,8 @@
 #pragma once
 
 #include "common/Module.h"
-
 #include "common/Renderable.h"
+#include "common/Scenario.h"
 #include "vis/CameraController.h"
 #include "vis/VisualisationParams.h"
 
@@ -21,7 +21,7 @@ namespace vis
 class Visualiser : public common::Module
 {
 public:
-    Visualiser(const VisualisationParams& params, zmq::context_t* ctx)
+    Visualiser(const VisualisationParams& params, const common::Scenario& scenario, zmq::context_t* ctx)
         : common::Module(ctx), mParams(params)
     {}
 
@@ -29,6 +29,8 @@ public:
 
 private:
     void render();
+    void renderModelRenderables();
+
     void handleInput();
     void processMessage(const std::string& topic, const std::string& message);
     void sendResetSignal();
@@ -40,8 +42,8 @@ private:
     CameraController mCameraController;
     VisualisationParams mParams;
 
-    std::mutex mRenderablesMutex;
-    std::vector<std::unique_ptr<Renderable>> mRenderables;
+    std::mutex mModelRenderablesMutex;
+    std::vector<std::shared_ptr<Renderable>> mModelRenderables;
 };
 }
 }

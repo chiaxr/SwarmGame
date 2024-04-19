@@ -2,7 +2,7 @@
 
 #include "common/Uav.h"
 
-#include "nlohmann/json.hpp"
+#include "common/JsonWrapper.h"
 
 namespace swarmgame
 {
@@ -13,13 +13,17 @@ struct Scenario
     Scenario() = default;
     Scenario(const nlohmann::json& scenario)
     {
-        for (const nlohmann::json& uav : scenario.at("uavs"))
+        if (scenario.contains("uavs"))
         {
-            mInitialUavs.emplace_back(uav);
+            for (const nlohmann::json& uav : scenario.at("uavs"))
+            {
+                Uav temp;
+                temp.fromJson(uav);
+                mInitialUavs.emplace_back(std::move(temp));
+            }
         }
     }
 
-    // Scenario
     std::vector<Uav> mInitialUavs;
 };  
 }

@@ -3,6 +3,7 @@
 #include "vis/Visualiser.h"
 
 #include "common/Uav.h"
+#include "common/JsonWrapper.h"
 #include "common/MessageTopics.h"
 
 #include "raylib.h"
@@ -65,7 +66,7 @@ void Visualiser::run()
 
             // Reset button
             GuiSetStyle(BUTTON, TEXT_ALIGNMENT, TEXT_ALIGN_CENTER);
-            Rectangle resetButtonBounds { 25, mParams.mScreenHeight - 50, 125, 30 };
+            Rectangle resetButtonBounds { 25.0f, static_cast<float>(mParams.mScreenHeight - 50), 125.0f, 30.0f };
             if (GuiButton(resetButtonBounds, GuiIconText(ICON_UNDO_FILL, "Reset")))
             {
                 sendResetSignal();
@@ -83,14 +84,20 @@ void Visualiser::run()
 
 void Visualiser::render()
 {
-    std::lock_guard<std::mutex> guard(mRenderablesMutex);
+    renderModelRenderables();
+}
 
-    for (const auto& renderable : mRenderables)
+void Visualiser::renderModelRenderables()
+{
+    std::lock_guard<std::mutex> guard(mModelRenderablesMutex);
+
+    for (const auto& renderable : mModelRenderables)
     {
-        renderable->render();
+        if (renderable)
+        {
+            renderable->render();
+        }
     }
-
-    mRenderables.clear();
 }
 
 void Visualiser::handleInput()
@@ -131,9 +138,9 @@ void Visualiser::sendShutdownSignal()
 void Visualiser::runSubscriber()
 {
     zmq::socket_t subscriber(*mCtx, zmq::socket_type::sub);
-    subscriber.connect("tcp://localhost:5555");
+    subscriber.bind("inproc://" + topic::Renderables);
 
-    subscriber.set(zmq::sockopt::subscribe, topic::UavState);
+    subscriber.set(zmq::sockopt::subscribe, topic::Renderables);
     subscriber.set(zmq::sockopt::rcvtimeo, mParams.mMessageTimeoutMs);
 
     while (mRunning)
@@ -150,12 +157,27 @@ void Visualiser::runSubscriber()
 
 void Visualiser::processMessage(const std::string& topic, const std::string& message)
 {
-    if (topic == topic::UavState)
+    if (topic == topic::Renderables)
     {
-        std::lock_guard<std::mutex> guard(mRenderablesMutex);
-        mRenderables.emplace_back(
-            std::make_unique<common::Uav>(nlohmann::json::parse(message))
-        );
+        std::vector<std::shared_ptr<Renderable>> renderables;
+        std::map<vis::RenderableType, std::vector<nlohmann::json>> renderablesMap = nlohmann::json::parse(message);
+        for (const auto& [renderType, serialised] : renderablesMap)
+        {
+            if (renderType == vis::RenderableType::UAV)
+            {
+                for (const auto& renderable : serialised)
+                {
+                    renderables.emplace_back(std::make_shared<common::Uav>(renderable));
+                }
+            }
+            else
+            {
+                std::cout << "Invalid render type received" << std::endl;
+            }
+        }
+
+        std::lock_guard<std::mutex> guard(mModelRenderablesMutex);
+        mModelRenderables.swap(renderables);
     }
     else
     {

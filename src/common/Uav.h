@@ -2,7 +2,7 @@
 
 #include "common/Renderable.h"
 
-#include "nlohmann/json.hpp"
+#include "common/JsonWrapper.h"
 
 #include <cstdint>
 
@@ -18,10 +18,10 @@ struct Uav : public vis::Renderable
         const float x, const float y, const float z,
         const float vx, const float vy, const float vz);
 
-    Uav(const nlohmann::json& json);
+    void render() const override;
 
-    nlohmann::json toJson() const;
-    void render() override;
+    void fromJson(const nlohmann::json& json); // for reading from config file
+    nlohmann::json toJson() const; // for sending to controllers
 
     int32_t mId { 0 };
     float mX { 0.0f };
@@ -30,6 +30,12 @@ struct Uav : public vis::Renderable
     float mVx { 0.0f };
     float mVy { 0.0f };
     float mVz { 0.0f };
+
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(
+        Uav,
+        mId,
+        mX, mY, mZ,
+        mVx, mVy, mVz);
 };
 }
 }
