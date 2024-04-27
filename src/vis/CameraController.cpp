@@ -27,9 +27,10 @@ void CameraController::init(const CameraControllerMode mode, const Vector3& posi
 void CameraController::update()
 {
     constexpr float CAMERA_MOVE_SPEED = 0.2f;
-    constexpr float CAMERA_MOUSE_SCROLL_SENSITIVITY = 1.5f;
+    constexpr float CAMERA_MOUSE_SCROLL_SENSITIVITY = 1.8f;
     constexpr float CAMERA_ROTATION_SPEED = 0.03f; // in radians
-    constexpr float CAMERA_MOUSE_MOVE_SENSITIVITY = 0.003f; // in radians
+    constexpr float CAMERA_MOUSE_TRANSLATION_SENSITIVITY = 0.05f;
+    constexpr float CAMERA_MOUSE_ROTATION_SENSITIVITY = 0.003f; // in radians
 
     if (mMode == CameraControllerMode::TOP_DOWN)
     {
@@ -41,6 +42,14 @@ void CameraController::update()
 
         // Vertical movement
         CameraMoveUp(&mCamera, -GetMouseWheelMove() * CAMERA_MOUSE_SCROLL_SENSITIVITY);
+
+        // Mouse panning
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        {
+            Vector2 mousePositionDelta = GetMouseDelta();
+            CameraMoveForward(&mCamera, mousePositionDelta.y * CAMERA_MOUSE_TRANSLATION_SENSITIVITY, true);
+            CameraMoveRight(&mCamera, -mousePositionDelta.x * CAMERA_MOUSE_TRANSLATION_SENSITIVITY, true);
+        }
     }
     else
     {
@@ -62,8 +71,8 @@ void CameraController::update()
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
         {
             Vector2 mousePositionDelta = GetMouseDelta();
-            CameraYaw(&mCamera, -mousePositionDelta.x * CAMERA_MOUSE_MOVE_SENSITIVITY, false);
-            CameraPitch(&mCamera, -mousePositionDelta.y * CAMERA_MOUSE_MOVE_SENSITIVITY, true, false, false);
+            CameraYaw(&mCamera, -mousePositionDelta.x * CAMERA_MOUSE_ROTATION_SENSITIVITY, false);
+            CameraPitch(&mCamera, -mousePositionDelta.y * CAMERA_MOUSE_ROTATION_SENSITIVITY, true, false, false);
         }
 
         // Mouse zoom
