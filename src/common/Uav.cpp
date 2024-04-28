@@ -1,5 +1,12 @@
 #include "common/Uav.h"
 
+#include "common/Geometry.h"
+
+#include "raymath.h"
+#include "rlgl.h"
+
+#include <iostream>
+
 namespace swarmgame
 {
 namespace common
@@ -22,6 +29,23 @@ void Uav::render() const
 {
     constexpr float radius = 0.5f;
     DrawSphere(toVisFrame(mX, mY, mZ), radius, RED);
+
+    // Velocity
+    Vector3 v = toVisFrame(mVx, mVy, mVz);
+    float speed = Vector3Length(v);
+    constexpr float minSpeedVisThreshold = 0.1f;
+    if (speed > minSpeedVisThreshold)
+    {
+        Vector3 t = toVisFrame(mX, mY, mZ);
+        Vector3 up = toVisFrame(0.0f, 0.0f, 1.0f);
+        auto [angle, axis] = getAxisAngle(v, up);
+
+        rlPushMatrix();
+            rlTranslatef(t.x, t.y, t.z);
+            rlRotatef(angle, axis.x, axis.y, axis.z);
+            DrawCylinder(Vector3Zero(), 0.1f, 0.1f, 1.0f, 8, BLUE);
+        rlPopMatrix();
+    }
 }
 
 void Uav::fromJson(const nlohmann::json& json)
