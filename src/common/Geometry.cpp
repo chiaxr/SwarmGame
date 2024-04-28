@@ -2,6 +2,8 @@
 
 #include "common/MapboxWrapper.h"
 
+#include "raymath.h"
+
 namespace swarmgame
 {
 namespace common
@@ -69,6 +71,38 @@ void sortVerticesCounterclockwise(std::vector<Vector2>& polygon)
 {
     sortVerticesClockwise(polygon);
     std::reverse(polygon.begin(), polygon.end());
+}
+
+std::tuple<float, Vector3> getAxisAngle(const Vector3& a, const Vector3& b)
+{
+    float angle = 0.0f;
+    Vector3 axis = a;
+
+    Vector3 unitA = Vector3Normalize(a);
+    Vector3 unitB = Vector3Normalize(b);
+    float cosTheta = Vector3DotProduct(unitA, unitB);
+    Vector3 crossProd = Vector3CrossProduct(unitA, unitB);
+
+    // Vectors are parallel and in same direction
+    if (cosTheta > 1.0f - EPSILON)
+    {
+        angle = 0.0f;
+        axis = unitA;
+    }
+    // Vectors are parallel and in opposite direction
+    else if (cosTheta < -1.0f + EPSILON)
+    {
+        angle = 180.0f;
+        axis = unitA;
+    }
+    // Vectors are non-parallel
+    else
+    {
+        angle = RAD2DEG * -acos(cosTheta);
+        axis = crossProd;
+    }
+
+    return {angle, crossProd};
 }
 }
 }

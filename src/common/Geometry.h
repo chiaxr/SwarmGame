@@ -22,5 +22,7 @@ Vector2 getCentroidConcave(const std::vector<Vector2>& polygon);
 
 void sortVerticesClockwise(std::vector<Vector2>& polygon);
 void sortVerticesCounterclockwise(std::vector<Vector2>& polygon);
+
+std::tuple<float, Vector3> getAxisAngle(const Vector3& a, const Vector3& b);
 }
 }
