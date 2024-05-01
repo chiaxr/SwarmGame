@@ -10,7 +10,8 @@ enum class RenderableType
 {
     UNKNOWN,
     UAV,
-    OBSTACLE
+    OBSTACLE,
+    LINE
 };
 
 struct Renderable

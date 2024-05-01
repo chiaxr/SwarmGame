@@ -1,10 +1,9 @@
-#pragma once
-
 #include "vis/Visualiser.h"
 
 #include "common/Uav.h"
 #include "common/JsonWrapper.h"
 #include "common/MessageTopics.h"
+#include "vis/VisPrimitives.h"
 
 #include "raylib.h"
 #define RAYGUI_IMPLEMENTATION
@@ -197,6 +196,13 @@ void Visualiser::processMessage(const std::string& topic, const std::string& mes
                 for (const auto& renderable : serialised)
                 {
                     renderables.emplace_back(std::make_shared<common::Uav>(renderable));
+                }
+            }
+            else if (renderType == vis::RenderableType::LINE)
+            {
+                for (const auto& renderable : serialised)
+                {
+                    renderables.emplace_back(std::make_shared<vis::Line>(renderable));
                 }
             }
             else

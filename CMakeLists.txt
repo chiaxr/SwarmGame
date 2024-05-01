@@ -63,6 +63,7 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/common/Module.cpp
     src/common/Obstacle.cpp
     src/common/Uav.cpp
+    src/sim/Lidar2d.cpp
     src/sim/Model.cpp
     src/vis/CameraController.cpp
     src/vis/Visualiser.cpp

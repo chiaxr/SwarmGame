@@ -1,8 +1,11 @@
-#pragma once
-
 #include "sim/Model.h"
-#include "common/MessageTopics.h"
 
+#include "sim/Lidar2d.h"
+#include "sim/SensorData.h"
+#include "common/MessageTopics.h"
+#include "vis/VisPrimitives.h"
+
+#include "raymath.h"
 #include "zmq.hpp"
 #include "zmq_addon.hpp"
 
@@ -16,6 +19,12 @@ namespace sim
 void Model::init()
 {
     resetScenario();
+
+    mEnvTriangles.clear();
+    for (const auto& obstacle : mInitialScenario.mObstacles)
+    {
+        mEnvTriangles.insert(mEnvTriangles.end(), obstacle.mTriangles.begin(), obstacle.mTriangles.end());
+    }
 
     mFutureRun = std::async(std::launch::async, &Model::run, this);
     mFutureRunPublisher = std::async(std::launch::async, &Model::runPublisher, this);
@@ -89,15 +98,35 @@ void Model::runPublisher()
 
         std::map<vis::RenderableType, std::vector<nlohmann::json>> renderablesSerialised;
 
-        // Send UAV states to controllers
+        // Send UAV states and sensor data to controllers
         {
             std::lock_guard<std::mutex> guard(mUavsMutex);
             for (const auto& [id, uav] : mUavs)
             {
+                Vector3 pos {uav.mX, uav.mY, uav.mZ};
+                
+                // Simulate sensors
+                SensorData sensorData;
+                sensorData.id = uav.mId;
+                sensorData.pointcloud = Lidar2d::simulate(
+                    pos,
+                    mEnvTriangles,
+                    mParams.mAngleStep,
+                    mParams.mMaxRange
+                );
+
                 publisher.send(zmq::buffer(topic::UavState), zmq::send_flags::sndmore);
                 publisher.send(zmq::buffer(uav.toJson().dump()));
 
+                publisher.send(zmq::buffer(topic::SensorData), zmq::send_flags::sndmore);
+                publisher.send(zmq::buffer(nlohmann::json(sensorData).dump()));
+
                 renderablesSerialised[vis::RenderableType::UAV].emplace_back(uav);
+                for (const Vector3& point : sensorData.pointcloud)
+                {
+                    vis::Line line(pos, Vector3Add(pos, point), RED);
+                    renderablesSerialised[vis::RenderableType::LINE].emplace_back(line);
+                }
             }
         }
 

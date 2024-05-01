@@ -1,6 +1,7 @@
 #pragma once
 
 #include "nlohmann/json.hpp"
+#include "raylib.h"
 
 #include <memory>
 #include <vector>
@@ -36,3 +37,6 @@ struct adl_serializer<std::shared_ptr<T>>
 };
 
 NLOHMANN_JSON_NAMESPACE_END
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vector3, x, y, z);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Color, r, g, b, a);

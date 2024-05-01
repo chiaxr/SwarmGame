@@ -11,6 +11,10 @@
     },
     "sim":
     {
-        
+        "lidar2d":
+        {
+            "angleStep": 10.0,
+            "maxRange": 15.0
+        }
     }
 }

@@ -38,6 +38,7 @@ private:
 
     SimulationParams mParams;
     common::Scenario mInitialScenario;
+    std::vector<common::Triangle<Vector3>> mEnvTriangles;
 
     std::mutex mUavsMutex;
     std::map<int32_t, common::Uav> mUavs;
