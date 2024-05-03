@@ -11,6 +11,8 @@
     },
     "sim":
     {
+        "uavRadius": 0.4,
+        "uavMaxSpeed": 5,
         "lidar2d":
         {
             "angleStep": 10.0,

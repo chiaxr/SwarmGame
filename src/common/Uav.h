@@ -16,7 +16,8 @@ struct Uav : public vis::Renderable
 
     Uav(const int32_t id,
         const float x, const float y, const float z,
-        const float vx, const float vy, const float vz);
+        const float vx, const float vy, const float vz,
+        const float radius);
 
     void render() const override;
 
@@ -30,12 +31,14 @@ struct Uav : public vis::Renderable
     float mVx { 0.0f };
     float mVy { 0.0f };
     float mVz { 0.0f };
+    float mRadius { 0.0f };
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(
         Uav,
         mId,
         mX, mY, mZ,
-        mVx, mVy, mVz);
+        mVx, mVy, mVz,
+        mRadius);
 };
 }
 }

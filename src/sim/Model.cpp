@@ -177,8 +177,9 @@ void Model::resetScenario()
     mUavs.clear();
 
     // Add initial UAVs
-    for (const common::Uav& uav : mInitialScenario.mInitialUavs)
+    for (common::Uav& uav : mInitialScenario.mInitialUavs)
     {
+        uav.mRadius = mParams.mUavRadius;
         mUavs[uav.mId] = uav;
     }
 }
