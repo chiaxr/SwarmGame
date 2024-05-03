@@ -45,6 +45,7 @@ private:
 
     std::mutex mUavsMutex;
     std::map<int32_t, common::Uav> mUavs;
+    std::map<int32_t, Vector3> mVelCmds;
 };
 }
 }

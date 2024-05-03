@@ -52,12 +52,22 @@ void Model::update(const int64_t dtMillis)
     std::lock_guard<std::mutex> guard(mUavsMutex);
     const std::vector<common::Uav> snapshot = getUavsSnapshot();
 
-    const float dt = dtMillis / 1000.0f;
+    const float dt = std::max(dtMillis / 1000.0f, EPSILON); // avoid dt == 0
     for (auto& [id, uav] : mUavs)
     {
         const Vector3 pos = uav.getPos();
         const Vector3 vel = uav.getVel();
-        const Vector3 nextPos = Vector3Add(pos, Vector3Scale(vel, dt));
+
+        // Limit velocity command based on max speed   
+        Vector3 velCmd = mVelCmds.contains(id) ? mVelCmds.at(id) : vel; // maintain current velocity if no command
+        const float cmdSpeed = Vector3Length(velCmd);
+        if (cmdSpeed > mParams.mUavMaxSpeed)
+        {
+            velCmd = Vector3Scale(velCmd, mParams.mUavMaxSpeed / cmdSpeed);
+        }
+
+        // Compute next position, assuming perfect velocity tracking
+        const Vector3 nextPos = Vector3Add(pos, Vector3Scale(velCmd, dt));
 
         // Next position results in collision, remain in current position
         if (hasCollisionWithUavs(nextPos, id, uav.mRadius, snapshot) ||
@@ -70,6 +80,11 @@ void Model::update(const int64_t dtMillis)
         uav.mX = nextPos.x;
         uav.mY = nextPos.y;
         uav.mZ = nextPos.z;
+
+        // Compute own velocity based on actual distance moved
+        uav.mVx = (nextPos.x - pos.x) / dt;
+        uav.mVy = (nextPos.y - pos.y) / dt;
+        uav.mVz = (nextPos.z - pos.z) / dt;
     }
 }
 
@@ -204,13 +219,10 @@ void Model::processMessage(const std::string& topic, const std::string& message)
 
         std::lock_guard<std::mutex> guard(mUavsMutex);
 
-        // Assume perfect velocity command tracking
-        // Update UAV velocity directly
+        // Only accept command if UAV exists
         if (mUavs.contains(id))
         {
-            mUavs.at(id).mVx = vx;
-            mUavs.at(id).mVy = vy;
-            mUavs.at(id).mVz = vz;
+            mVelCmds[id] = {vx, vy, vz};
         }        
     }
     else if (topic == topic::Reset)
