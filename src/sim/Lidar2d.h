@@ -15,7 +15,9 @@ class Lidar2d
 {
 public:
     static std::vector<Vector3> simulate(
+        const int32_t id,
         const Vector3& pos,
+        const std::vector<common::Uav>& uavs,
         const std::vector<common::Triangle<Vector3>>& triangles,
         const float angleStep,
         const float maxRange);

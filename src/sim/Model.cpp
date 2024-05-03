@@ -101,15 +101,19 @@ void Model::runPublisher()
         // Send UAV states and sensor data to controllers
         {
             std::lock_guard<std::mutex> guard(mUavsMutex);
+            const std::vector<common::Uav> snapshot = getUavsSnapshot();
+
             for (const auto& [id, uav] : mUavs)
             {
-                Vector3 pos {uav.mX, uav.mY, uav.mZ};
+                Vector3 pos = uav.getPos();
                 
                 // Simulate sensors
                 SensorData sensorData;
                 sensorData.id = uav.mId;
                 sensorData.pointcloud = Lidar2d::simulate(
+                    id,
                     pos,
+                    snapshot,
                     mEnvTriangles,
                     mParams.mAngleStep,
                     mParams.mMaxRange
@@ -182,6 +186,17 @@ void Model::resetScenario()
         uav.mRadius = mParams.mUavRadius;
         mUavs[uav.mId] = uav;
     }
+}
+
+std::vector<common::Uav> Model::getUavsSnapshot()
+{
+    std::vector<common::Uav> snapshot;
+    snapshot.reserve(mUavs.size());
+    for (const auto& [id, uav] : mUavs)
+    {
+        snapshot.emplace_back(uav);
+    }
+    return snapshot;
 }
 }
 }

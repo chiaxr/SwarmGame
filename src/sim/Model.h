@@ -35,6 +35,7 @@ private:
     void runPublisher() override;
     void processMessage(const std::string& topic, const std::string& message);
     void resetScenario();
+    std::vector<common::Uav> getUavsSnapshot();
 
     SimulationParams mParams;
     common::Scenario mInitialScenario;
