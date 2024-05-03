@@ -52,6 +52,16 @@ void Uav::render() const
     }
 }
 
+Vector3 Uav::getPos() const
+{
+    return { mX, mY, mZ };
+}
+
+Vector3 Uav::getVel() const
+{
+    return { mVx, mVy, mVz };
+}
+
 void Uav::fromJson(const nlohmann::json& json)
 {
     mId = static_cast<int32_t>(json.at("id"));

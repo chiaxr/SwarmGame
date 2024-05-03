@@ -21,6 +21,9 @@ struct Uav : public vis::Renderable
 
     void render() const override;
 
+    Vector3 getPos() const;
+    Vector3 getVel() const;
+
     void fromJson(const nlohmann::json& json); // for reading from config file
     nlohmann::json toJson() const; // for sending to controllers
 
