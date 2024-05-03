@@ -50,14 +50,64 @@ void Model::run()
 void Model::update(const int64_t dtMillis)
 {
     std::lock_guard<std::mutex> guard(mUavsMutex);
-    
+    const std::vector<common::Uav> snapshot = getUavsSnapshot();
+
     const float dt = dtMillis / 1000.0f;
     for (auto& [id, uav] : mUavs)
     {
-        uav.mX += uav.mVx * dt;
-        uav.mY += uav.mVy * dt;
-        uav.mZ += uav.mVz * dt;
+        const Vector3 pos = uav.getPos();
+        const Vector3 vel = uav.getVel();
+        const Vector3 nextPos = Vector3Add(pos, Vector3Scale(vel, dt));
+
+        // Next position results in collision, remain in current position
+        if (hasCollisionWithUavs(nextPos, id, uav.mRadius, snapshot) ||
+            hasCollisionWithObstacles(nextPos, mInitialScenario.mObstacles))
+        {
+            continue;
+        }
+
+        // Next position is safe, update position
+        uav.mX = nextPos.x;
+        uav.mY = nextPos.y;
+        uav.mZ = nextPos.z;
     }
+}
+
+bool Model::hasCollisionWithUavs(const Vector3& pos, const int32_t id, const float radius, const std::vector<common::Uav> uavs)
+{
+    bool collision = false;
+
+    for (const auto& uav : uavs)
+    {
+        if (id == uav.mId)
+        {
+            continue;
+        }
+
+        if (Vector3Distance(pos, uav.getPos()) < radius + uav.mRadius)
+        {
+            collision = true;
+            break;
+        }
+    }
+
+    return collision;
+}
+
+bool Model::hasCollisionWithObstacles(const Vector3& pos, const std::vector<common::Obstacle>& obstacles)
+{
+    bool collision = false;
+
+    for (const auto& obstacle : obstacles)
+    {
+        if (common::pointInExtrudedPolygon(obstacle.mPolygon, obstacle.mMinHeight, obstacle.mMaxHeight, pos))
+        {
+            collision = true;
+            break;
+        }
+    }
+
+    return collision;
 }
 
 void Model::runSubscriber()

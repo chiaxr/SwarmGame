@@ -24,5 +24,8 @@ void sortVerticesClockwise(std::vector<Vector2>& polygon);
 void sortVerticesCounterclockwise(std::vector<Vector2>& polygon);
 
 std::tuple<float, Vector3> getAxisAngle(const Vector3& a, const Vector3& b);
+
+bool pointInPolygon(const std::vector<Vector2>& polygon, const Vector2& point);
+bool pointInExtrudedPolygon(const std::vector<Vector2>& polygon, const float minHeight, const float maxHeight, const Vector3& point);
 }
 }

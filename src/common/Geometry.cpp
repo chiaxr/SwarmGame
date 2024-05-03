@@ -2,6 +2,7 @@
 
 #include "common/MapboxWrapper.h"
 
+#include "clipper2/clipper.h"
 #include "raymath.h"
 
 namespace swarmgame
@@ -103,6 +104,29 @@ std::tuple<float, Vector3> getAxisAngle(const Vector3& a, const Vector3& b)
     }
 
     return {angle, crossProd};
+}
+
+bool pointInPolygon(const std::vector<Vector2>& polygon, const Vector2& point)
+{
+    using namespace Clipper2Lib;
+
+    Point<float> cPoint {point.x, point.y};
+    Path<float> cPolygon;
+    for (const Vector2& v : polygon)
+    {
+        cPolygon.emplace_back(v.x, v.y);
+    }
+    
+    PointInPolygonResult result = PointInPolygon(cPoint, cPolygon);
+    
+    return result == PointInPolygonResult::IsInside; // point on edge of polygon considered outside
+}
+
+bool pointInExtrudedPolygon(const std::vector<Vector2>& polygon, const float minHeight, const float maxHeight, const Vector3& point)
+{
+    bool withinHeights = point.z > minHeight && point.z < maxHeight;
+    bool withinPolygon = pointInPolygon(polygon, {point.x, point.y});
+    return withinHeights && withinPolygon;
 }
 }
 }

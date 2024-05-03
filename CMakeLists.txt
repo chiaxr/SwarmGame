@@ -8,8 +8,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DZMQ_STATIC")
 
 # Configure libraries
 set(PROJECT_LIB_DIR ${PROJECT_SOURCE_DIR}/lib)
-# cppack
-set(CPPACK_LIB_DIR ${PROJECT_LIB_DIR}/cppack)
+# Clipper2
+set(CLIPPER2_LIB_DIR ${PROJECT_LIB_DIR}/Clipper2-1.3.0/CPP)
+add_subdirectory(${CLIPPER2_LIB_DIR})
+set(CLIPPER2_INCLUDE_DIR ${CLIPPER2_LIB_DIR}/Clipper2Lib/include)
 # earcut.hpp
 set(EARCUT_LIB_DIR ${PROJECT_LIB_DIR}/earcut.hpp-2.2.4)
 # json
@@ -49,6 +51,7 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/src
+    ${CLIPPER2_INCLUDE_DIR}
     ${EARCUT_LIB_DIR}/include
     ${JSON_LIB_DIR}/single_include
     ${POLYLABEL_LIB_DIR}/include
@@ -81,6 +84,7 @@ elseif (WIN32)
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    Clipper2
     raylib
     ${ZeroMQ_LIBRARIES}
     ${OS_DEPENDENT_LIBRARIES}
